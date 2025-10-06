@@ -1,26 +1,246 @@
-@import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f2f2f2;
+  color: #333;
+  min-height: 100vh;
+}
+
+form,
+.container {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #222;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+button {
+  width: 100%;
+  background: #0070f3;
+  border: none;
+  padding: 10px;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #005bb5;
+}
+
+a {
+  color: #0070f3;
+  text-align: center;
+  display: block;
+  margin-top: 15px;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Vault page */
+
+.container.vault {
+  max-width: 900px;
+}
+
+input[type="text"] {
+  max-width: 100%;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+th,
+td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+  word-break: break-word;
+}
+
+th {
+  background-color: #f7f7f7;
+  font-weight: 600;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+}
+
+button.small {
+  width: auto;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  border-radius: 4px;
+}
+
+.flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.search-input {
+  flex-grow: 1;
+  max-width: 300px;
+  margin-right: 10px;
+}
+
+.buttons-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.container.vault {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 24px 18px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.flex {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.vault-form {
+  margin-bottom: 28px;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+th,
+td {
+  padding: 11px 13px;
+  border-bottom: 1px solid #ededed;
+  text-align: left;
+  font-size: 0.98rem;
+}
+
+th {
+  background: #f6f8fa;
+  font-weight: bold;
+  letter-spacing: 0.025em;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover {
+  background: #f9fbfd;
+}
+
+/* Buttons in table */
+table button,
+button.table-action {
+  padding: 7px 14px;
+  background: #0070f3;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-weight: 500;
+  cursor: pointer;
+  margin: 0 2px 0 0;
+  font-size: 0.92em;
+}
+
+table button:hover {
+  background: #0058b2;
+}
+
+.copy-btn {
+  background: #eaf1fb;
+  color: #314b7c;
+  border: 1px solid #bdd7f6;
+  padding: 6px 10px;
+  border-radius: 4px;
+  transition: background 0.2s;
+  margin-left: 5px;
+}
+.copy-btn:hover {
+  background: #bdd7f6;
+  color: #222;
+}
+
+/* Form layout improvements */
+.vault-form input,
+.vault-form textarea {
+  margin-bottom: 10px;
+}
+
+.vault-form input[type="text"],
+.vault-form textarea {
+  padding: 8px 8px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #cad4e0;
+  background: #f8fafc;
+}
+
+.vault-form textarea {
+  min-height: 60px;
+}
+
+.vault-form label {
+  font-size: 0.96rem;
+  margin-top: 10px;
+  margin-bottom: 2px;
+  display: block;
+}
+
+.vault-form h2 {
+  margin-bottom: 16px;
+  font-size: 1.21rem;
+  color: #1e293b;
+  text-align: left;
 }
