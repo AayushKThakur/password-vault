@@ -53,7 +53,8 @@ export async function POST(req: NextRequest) {
   };
 
   const result = await db.collection("vault").insertOne(newEntry);
-  newEntry._id = result.insertedId;
+  // newEntry._id = result.insertedId;
+  (newEntry as any)._id = result.insertedId;
 
   return NextResponse.json(newEntry);
 }
@@ -71,20 +72,24 @@ export async function PATCH(req: NextRequest) {
   const client = await clientPromise;
   const db = client.db();
 
-  const updated = await db
-    .collection("vault")
-    .findOneAndUpdate(
-      {
-        _id: new (await import("mongodb")).ObjectId(_id),
-        userId: (user as any).userId,
-      },
-      {
-        $set: { title, username, password, url, notes, updatedAt: new Date() },
-      },
-      { returnDocument: "after" }
-    );
+  const updated = await db.collection("vault").findOneAndUpdate(
+    {
+      _id: new (await import("mongodb")).ObjectId(_id),
+      userId: (user as any).userId,
+    },
+    {
+      $set: { title, username, password, url, notes, updatedAt: new Date() },
+    },
+    { returnDocument: "after" }
+  );
 
-  if (!updated.value) {
+  // if (!updated.value) {
+  //   return NextResponse.json(
+  //     { error: "Not found or unauthorized" },
+  //     { status: 404 }
+  //   );
+  // }
+  if (!updated || !updated.value) {
     return NextResponse.json(
       { error: "Not found or unauthorized" },
       { status: 404 }

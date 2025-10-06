@@ -166,19 +166,162 @@ export default function Vault() {
     copyTimeoutRef.current = setTimeout(() => setCopiedId(null), 15000);
   }
 
+  return (
+    <div className="container vault">
+      <div
+        className="flex"
+        style={{
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "10px",
+        }}
+      >
+        <h1>Your Vault</h1>
+        <button
+          onClick={() => {
+            localStorage.removeItem("token");
+            router.push("/auth/login");
+          }}
+        >
+          Sign Out
+        </button>
+      </div>
+
+      <div className="flex" style={{ marginBottom: "15px", gap: "10px" }}>
+        <button onClick={exportVault} style={{ flexGrow: 1 }}>
+          Export Vault
+        </button>
+        <input
+          type="file"
+          accept="application/json"
+          ref={fileInputRef}
+          onChange={importVault}
+          style={{ display: "none" }}
+          id="file-input"
+        />
+        <label
+          htmlFor="file-input"
+          style={{
+            backgroundColor: "#0070f3",
+            color: "white",
+            padding: "10px 20px",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          Import Vault
+        </label>
+      </div>
+
+      <input
+        type="text"
+        placeholder="Search vault..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        style={{ width: "100%", padding: "8px", marginBottom: "15px" }}
+      />
+
+      <div className="vault-form">
+        <h2>{editingItem ? "Edit Vault Item" : "Add New Vault Item"}</h2>
+        <input
+          type="text"
+          placeholder="Title"
+          value={form.title}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Username"
+          value={form.username}
+          onChange={(e) => setForm({ ...form, username: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Password"
+          value={form.password}
+          onChange={(e) => setForm({ ...form, password: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="URL"
+          value={form.url}
+          onChange={(e) => setForm({ ...form, url: e.target.value })}
+        />
+        <textarea
+          placeholder="Notes"
+          value={form.notes}
+          onChange={(e) => setForm({ ...form, notes: e.target.value })}
+        />
+        <div style={{ display: "flex", gap: "10px" }}>
+          <button onClick={saveItem} style={{ flexGrow: 1 }}>
+            {editingItem ? "Update Item" : "Add Item"}
+          </button>
+          {editingItem && (
+            <button onClick={resetForm} style={{ flexGrow: 1 }}>
+              Cancel
+            </button>
+          )}
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style={{ width: "15%" }}>Title</th>
+            <th style={{ width: "15%" }}>Username</th>
+            <th style={{ width: "25%" }}>Password</th>
+            <th style={{ width: "15%" }}>URL</th>
+            <th style={{ width: "20%" }}>Notes</th>
+            <th style={{ width: "10%" }}>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredVault.map((item) => (
+            <tr key={item._id}>
+              <td>{item.title}</td>
+              <td>{item.username}</td>
+              <td>
+                {item.password}
+                <button
+                  className="copy-btn"
+                  onClick={() => copyPassword(item._id, item.password)}
+                >
+                  {copiedId === item._id ? "Copied!" : "Copy"}
+                </button>
+              </td>
+              <td>{item.url}</td>
+              <td>{item.notes}</td>
+              <td>
+                <button onClick={() => onEdit(item)}>Edit</button>
+                <button onClick={() => deleteItem(item._id)}>Delete</button>
+              </td>
+            </tr>
+          ))}
+          {filteredVault.length === 0 && (
+            <tr>
+              <td colSpan={6} style={{ textAlign: "center", padding: "10px" }}>
+                No matching vault items.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+
   async function exportVault() {
     const token = localStorage.getItem("token");
-    if (!token) return router.push("/auth/login");
-
+    if (!token) {
+      router.push("/auth/login");
+      return;
+    }
     const res = await fetch("/api/vault/export", {
       headers: { Authorization: "Bearer " + token },
     });
-
     if (!res.ok) {
       alert("Failed to export vault");
       return;
     }
-
     const blob = await res.blob();
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -190,11 +333,12 @@ export default function Vault() {
 
   async function importVault(e: React.ChangeEvent<HTMLInputElement>) {
     const token = localStorage.getItem("token");
-    if (!token) return router.push("/auth/login");
-
+    if (!token) {
+      router.push("/auth/login");
+      return;
+    }
     const file = e.target.files?.[0];
     if (!file) return;
-
     const text = await file.text();
     let entries;
     try {
@@ -203,7 +347,6 @@ export default function Vault() {
       alert("Invalid JSON file");
       return;
     }
-
     const res = await fetch("/api/vault/import", {
       method: "POST",
       headers: {
@@ -212,7 +355,6 @@ export default function Vault() {
       },
       body: JSON.stringify(entries),
     });
-
     if (res.ok) {
       alert("Vault imported successfully");
       fetchVault(token);
@@ -221,170 +363,4 @@ export default function Vault() {
       alert("Failed to import vault");
     }
   }
-
-  return (
-    <div className="max-w-5xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Your Vault</h1>
-        <button
-          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-          onClick={() => {
-            localStorage.removeItem("token");
-            router.push("/auth/login");
-          }}
-        >
-          Sign Out
-        </button>
-      </div>
-
-      <div className="flex justify-between mb-4">
-        <button
-          onClick={exportVault}
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-        >
-          Export Vault
-        </button>
-        <input
-          type="file"
-          accept="application/json"
-          ref={fileInputRef}
-          onChange={importVault}
-          className="hidden"
-          id="vault-import"
-        />
-        <label
-          htmlFor="vault-import"
-          className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Import Vault
-        </label>
-      </div>
-
-      <input
-        type="text"
-        placeholder="Search vault..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full mb-6 p-2 border rounded"
-      />
-
-      <div className="mb-6 bg-white p-4 rounded shadow">
-        <h2 className="text-xl font-semibold mb-4">
-          {editingItem ? "Edit Vault Item" : "Add New Vault Item"}
-        </h2>
-        <input
-          type="text"
-          placeholder="Title"
-          value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
-          className="w-full mb-2 p-2 border rounded"
-        />
-        <input
-          type="text"
-          placeholder="Username"
-          value={form.username}
-          onChange={(e) => setForm({ ...form, username: e.target.value })}
-          className="w-full mb-2 p-2 border rounded"
-        />
-        <input
-          type="text"
-          placeholder="Password"
-          value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-          className="w-full mb-2 p-2 border rounded"
-        />
-        <input
-          type="text"
-          placeholder="URL"
-          value={form.url}
-          onChange={(e) => setForm({ ...form, url: e.target.value })}
-          className="w-full mb-2 p-2 border rounded"
-        />
-        <textarea
-          placeholder="Notes"
-          value={form.notes}
-          onChange={(e) => setForm({ ...form, notes: e.target.value })}
-          className="w-full mb-2 p-2 border rounded"
-          rows={3}
-        />
-        <div className="flex space-x-4">
-          <button
-            onClick={saveItem}
-            className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
-          >
-            {editingItem ? "Update Item" : "Add Item"}
-          </button>
-          {editingItem && (
-            <button
-              onClick={resetForm}
-              className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-            >
-              Cancel
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="overflow-x-auto bg-white rounded shadow">
-        <table className="min-w-full border-collapse border border-gray-200">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border border-gray-300 px-4 py-2">Title</th>
-              <th className="border border-gray-300 px-4 py-2">Username</th>
-              <th className="border border-gray-300 px-4 py-2">Password</th>
-              <th className="border border-gray-300 px-4 py-2">URL</th>
-              <th className="border border-gray-300 px-4 py-2">Notes</th>
-              <th className="border border-gray-300 px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredVault.map((item) => (
-              <tr key={item._id} className="hover:bg-gray-50">
-                <td className="border border-gray-300 px-4 py-2">
-                  {item.title}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {item.username}
-                </td>
-                <td className="border border-gray-300 px-4 py-2 break-words max-w-xs">
-                  {item.password}
-                  <button
-                    onClick={() => copyPassword(item._id, item.password)}
-                    className="ml-2 text-sm text-blue-600 hover:underline"
-                  >
-                    {copiedId === item._id ? "Copied!" : "Copy"}
-                  </button>
-                </td>
-                <td className="border border-gray-300 px-4 py-2">{item.url}</td>
-                <td className="border border-gray-300 px-4 py-2 break-words max-w-xs">
-                  {item.notes}
-                </td>
-                <td className="border border-gray-300 px-4 py-2 space-x-2">
-                  <button
-                    onClick={() => onEdit(item)}
-                    className="text-indigo-600 hover:underline"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteItem(item._id)}
-                    className="text-red-600 hover:underline"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {filteredVault.length === 0 && (
-              <tr>
-                <td colSpan={6} className="text-center p-4 text-gray-500">
-                  No matching vault items.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
 }
